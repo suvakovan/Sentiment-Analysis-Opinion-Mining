@@ -1,6 +1,26 @@
 # Sentiment Analysis & Opinion Mining
 
-A comparative study of **Naive Bayes**, **Logistic Regression**, and **LSTM** models for binary sentiment classification on Amazon product reviews.
+Comparative sentiment classification project for Amazon product reviews using **Naive Bayes**, **Logistic Regression**, and **LSTM**.
+
+## Overview
+
+This project covers a full text-classification workflow:
+
+- data collection and labeling
+- text preprocessing and cleaning
+- TF-IDF and sequence-based feature extraction
+- model training and evaluation
+- a Flask web dashboard for live predictions and comparison
+
+## Reported Metrics
+
+The current comparison file at `results/model_comparison.csv` reports the following scores:
+
+| Model | Accuracy | Precision | Recall | F1 Score |
+| --- | --- | --- | --- | --- |
+| Naive Bayes | 1.00 | 1.00 | 1.00 | 1.00 |
+| Logistic Regression | 1.00 | 1.00 | 1.00 | 1.00 |
+| LSTM | 1.00 | 1.00 | 1.00 | 1.00 |
 
 ## Project Structure
 
@@ -9,18 +29,18 @@ sentiment-analysis-project/
 ├── data/                          # Raw and processed datasets
 ├── models/                        # Saved model weights and vectorizers
 ├── notebooks/
-│   ├── 01_data_exploration.ipynb   # EDA & labeling
+│   ├── 01_data_exploration.ipynb   # EDA and labeling
 │   ├── 02_preprocessing.ipynb      # Text cleaning pipeline
-│   ├── 03_feature_engineering.ipynb # TF-IDF & sequences
+│   ├── 03_feature_engineering.ipynb # TF-IDF and sequences
 │   ├── 04-06_model_training.ipynb  # Train NB, LR, LSTM
-│   └── 07_ablation_study.ipynb     # Evaluation & comparison
+│   └── 07_ablation_study.ipynb     # Evaluation and comparison
 ├── results/
-│   ├── plots/                     # Confusion matrices, ROC curves
-│   └── Research_Report.md         # Final research paper
+│   ├── plots/                      # Confusion matrices, ROC curves
+│   └── Research_Report.md         # Final report
 ├── src/
 │   ├── __init__.py
 │   ├── preprocessing.py           # TextPreprocessor
-│   ├── feature_extraction.py      # FeatureExtractor (TF-IDF + sequences)
+│   ├── feature_extraction.py      # FeatureExtractor for TF-IDF and sequences
 │   ├── models.py                  # NaiveBayesModel, LogisticRegressionModel, LSTMModel
 │   ├── evaluation.py              # ModelEvaluator
 │   ├── data_collection.py         # Amazon review scraper
@@ -32,44 +52,38 @@ sentiment-analysis-project/
 ## Quick Start
 
 ```bash
-# 1. Create & activate virtual environment
+# 1. Create and activate a virtual environment
 python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # macOS/Linux
+venv\Scripts\activate
 
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. (Optional) Install TensorFlow for LSTM
+# 3. Optional: install TensorFlow for LSTM support
 pip install tensorflow>=2.15
 
 # 4. Generate mock data
 python src/generate_mock_data.py
 
-# 5. Launch Jupyter and run notebooks 01 → 07 in order
+# 5. Launch Jupyter and run notebooks 01 to 07 in order
 jupyter notebook
 ```
 
-## Models
+## Running the Web App
 
-| Model               | Features | Expected F1 |
-| -------------------- | -------- | ----------- |
-| Naive Bayes          | TF-IDF   | ~77%        |
-| Logistic Regression  | TF-IDF   | ~85%        |
-| LSTM (Bidirectional) | Sequences| ~91%        |
+Start the Flask dashboard with:
 
-## Web Dashboard (Product Interface)
-
-We built an interactive, glassmorphism-themed Single Page Application to showcase the models in action. It features:
-- **Live Sentiment Tester**: Run predictions in real-time across your active models.
-- **Explainability Visualization**: Color-codes and underlines tokens based on their feature weights from the Logistic Regression coefficients (positive in green, negative in red).
-- **Ablation Comparison**: Interactive Chart.js and tabular performance comparison.
-
-To start the product:
 ```bash
 python app.py
 ```
-Open your browser and navigate to: `http://127.0.0.1:5000`
+
+Then open http://127.0.0.1:5000 in your browser.
+
+## Features
+
+- live sentiment prediction across the trained models
+- explanation view for token-level contribution in logistic regression
+- side-by-side comparison of accuracy, precision, recall, and F1 score
 
 ## License
 
