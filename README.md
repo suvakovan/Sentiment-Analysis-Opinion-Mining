@@ -55,3 +55,14 @@ python app.py
 ```
 
 Then open http://127.0.0.1:5000 in your browser.
+
+## Deploy to Vercel
+
+This repository now includes a Vercel entrypoint at the repo root. To deploy:
+
+1. Import the GitHub repo into Vercel.
+2. Keep the root directory as the project root.
+3. Let Vercel use the root `index.py` and `requirements.txt`.
+4. Deploy the project.
+
+The Flask app is exposed through the root entrypoint, so Vercel can serve the dashboard and API routes directly.

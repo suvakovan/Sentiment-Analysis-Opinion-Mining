@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "index.py": {
+      "excludeFiles": "{sentiment-analysis-project/notebooks/**,sentiment-analysis-project/test_*.py,sentiment-analysis-project/__pycache__/**,sentiment-analysis-project/src/__pycache__/**,sentiment-analysis-project/data/**,sentiment-analysis-project/results/plots/**}"
+    }
+  }
+}
