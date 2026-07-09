@@ -1,19 +1,19 @@
 # Sentiment Analysis & Opinion Mining
 
 <p align="center">
-	<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=900&center=true&vCenter=true&width=720&lines=Application+Under+Construction;Sentiment+Analysis+Dashboard+In+Progress;Updating+Models%2C+UI%2C+and+Documentation" alt="Application under construction animation" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=34&pause=850&center=true&vCenter=true&width=980&height=80&lines=Application+Under+Construction;Sentiment+Analysis+Dashboard+In+Progress;Updating+Models%2C+UI%2C+and+Documentation" alt="Application under construction animation" />
 </p>
 
 <p align="center">
-	<img src="https://img.shields.io/badge/Status-Under%20Construction-orange?style=for-the-badge" alt="Under construction status" />
+  <img src="https://img.shields.io/badge/Status-Under%20Construction-orange?style=for-the-badge&labelColor=111827&logoColor=ffffff" alt="Under construction status" />
 </p>
 
 <p align="center">
-	<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=28&pause=1000&center=true&vCenter=true&width=760&lines=Sentiment+Analysis+%26+Opinion+Mining;Naive+Bayes+%7C+Logistic+Regression+%7C+LSTM;Amazon+Review+Classification+Dashboard" alt="Animated typing header" />
+	<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=36&pause=1000&center=true&vCenter=true&width=1040&height=90&lines=Sentiment+Analysis+%26+Opinion+Mining;Naive+Bayes+%7C+Logistic+Regression+%7C+LSTM;Amazon+Review+Classification+Dashboard" alt="Animated typing header" />
 </p>
 
 <p align="center">
-	<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f172a,100:1d4ed8&height=160&section=header&text=Opinion%20Mining%20Project&fontSize=38&fontColor=ffffff&animation=fadeIn" alt="Animated wave header" />
+	<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0f172a,100:1d4ed8&height=220&section=header&text=Opinion%20Mining%20Project&fontSize=52&fontColor=ffffff&animation=fadeIn" alt="Animated wave header" />
 </p>
 
 <p align="center">
