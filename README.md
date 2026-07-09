@@ -1,6 +1,14 @@
 # Sentiment Analysis & Opinion Mining
 
 <p align="center">
+	<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&pause=900&center=true&vCenter=true&width=720&lines=Application+Under+Construction;Sentiment+Analysis+Dashboard+In+Progress;Updating+Models%2C+UI%2C+and+Documentation" alt="Application under construction animation" />
+</p>
+
+<p align="center">
+	<img src="https://img.shields.io/badge/Status-Under%20Construction-orange?style=for-the-badge" alt="Under construction status" />
+</p>
+
+<p align="center">
 	<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=28&pause=1000&center=true&vCenter=true&width=760&lines=Sentiment+Analysis+%26+Opinion+Mining;Naive+Bayes+%7C+Logistic+Regression+%7C+LSTM;Amazon+Review+Classification+Dashboard" alt="Animated typing header" />
 </p>
 
