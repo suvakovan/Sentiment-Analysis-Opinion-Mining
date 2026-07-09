@@ -1,0 +1,4 @@
+,accuracy,precision,recall,f1_score
+Naive Bayes,1.0,1.0,1.0,1.0
+Logistic Regression,1.0,1.0,1.0,1.0
+LSTM,1.0,1.0,1.0,1.0

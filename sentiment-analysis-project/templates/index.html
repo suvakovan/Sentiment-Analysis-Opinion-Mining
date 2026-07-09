@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis & Opinion Mining Dashboard</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CSS styles -->
+    <style>
+        :root {
+            --bg-color: #0d0b18;
+            --card-bg: rgba(25, 22, 47, 0.45);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #8a2be2;
+            --primary-glow: rgba(138, 43, 226, 0.4);
+            --accent-blue: #00d2ff;
+            --accent-green: #00ff87;
+            --accent-red: #ff007f;
+            --text-main: #f3f0ff;
+            --text-muted: #a59fb8;
+            --font-outfit: 'Outfit', sans-serif;
+            --font-inter: 'Inter', sans-serif;
+            --theme-accent: var(--primary);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(90, 20, 150, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 150, 255, 0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-inter);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            transition: --theme-accent 0.4s ease;
+        }
+
+        /* Theme variants */
+        body.theme-positive {
+            --theme-accent: #00E5A0;
+        }
+
+        body.theme-negative {
+            --theme-accent: #FF4D6D;
+        }
+
+        body.theme-mixed {
+            --theme-accent: #A78BFA;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header design */
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        header h1 {
+            font-family: var(--font-outfit);
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 30%, var(--accent-blue) 70%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-top: 1rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .glass-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(138, 43, 226, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(138, 43, 226, 0.1);
+        }
+
+        .panel-title {
+            font-family: var(--font-outfit);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.75rem;
+        }
+
+        /* Input sections */
+        .input-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
+            letter-spacing: 0.5px;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            background: rgba(10, 8, 20, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-main);
+            font-family: var(--font-inter);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            height: 150px;
+            resize: none;
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            border-color: var(--theme-accent);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, #a020f0 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-family: var(--font-outfit);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.25s ease;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.4);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            color: var(--accent-blue);
+            box-shadow: none;
+            font-size: 0.95rem;
+            padding: 0.75rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(138, 43, 226, 0.35);
+            transform: translateY(-1px);
+        }
+
+        /* Error message */
+        .error-card {
+            background: rgba(255, 77, 109, 0.1);
+            border: 1px solid rgba(255, 77, 109, 0.3);
+            border-left: 3px solid #FF4D6D;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #FFB3C1;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .error-card.show {
+            display: block;
+        }
+
+        /* Status message */
+        .status-message {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-message.extracting {
+            color: var(--accent-blue);
+        }
+
+        /* Review chips */
+        .review-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: rgba(10, 8, 20, 0.3);
+            border-radius: 10px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .review-chip {
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .review-chip:hover {
+            background: rgba(138, 43, 226, 0.4);
+            border-color: rgba(138, 43, 226, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .review-chip.selected {
+            background: var(--theme-accent);
+            border-color: var(--theme-accent);
+            color: #000;
+        }
+
+        /* Results section */
+        .results-section {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        /* Emoji burst animation */
+        #emoji-burst {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            z-index: 9999;
+            pointer-events: none;
+            display: none;
+        }
+
+        .emoji {
+            display: inline-block;
+            animation: emoji-float 2.5s ease-out forwards;
+            margin: 0 0.5rem;
+        }
+
+        @keyframes emoji-float {
+            0% {
+                opacity: 1;
+                transform: scale(0) translateY(0) translateX(var(--offset-x, 0));
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.4) translateY(-100px) translateX(calc(var(--offset-x, 0) * 0.5));
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translateY(-200px) translateX(var(--offset-x, 0));
+            }
+        }
+
+        /* Model result row */
+        .model-result-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--text-muted);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .model-result-row.pos {
+            border-left-color: var(--accent-green);
+        }
+
+        .model-result-row.neg {
+            border-left-color: var(--accent-red);
+        }
+
+        .model-icon {
+            font-size: 1.8rem;
+            margin-right: 0.8rem;
+            display: inline-block;
+        }
+
+        .model-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+            color: #fff;
+            min-width: 200px;
+        }
+
+        .model-name-tooltip {
+            position: relative;
+            cursor: help;
+            display: flex;
+            align-items: center;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            width: 220px;
+            background-color: rgba(0, 0, 0, 0.95);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 1rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 130%;
+            left: 50%;
+            margin-left: -110px;
+            font-size: 0.75rem;
+            white-space: normal;
+            border: 2px solid var(--theme-accent);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .model-name-tooltip:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .sentiment-output {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sentiment-tag {
+            padding: 0.35rem 0.85rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            animation: pulse-in 0.5s ease-out;
+        }
+
+        @keyframes pulse-in {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .sentiment-tag.pos {
+            background: rgba(0, 255, 135, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 255, 135, 0.3);
+            box-shadow: 0 0 8px rgba(0, 255, 135, 0);
+            animation: pulse-glow-pos 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow-pos {
+            0%, 100% {
+                box-shadow: 0 0 4px rgba(0, 255, 135, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 12px rgba(0, 255, 135, 0.6);
+            }
+        }
+
+        .sentiment-tag.neg {
+            background: rgba(255, 77, 109, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 77, 109, 0.3);
+            box-shadow: 0 0 8px rgba(255, 77, 109, 0);
+            animation: pulse-glow-neg 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow-neg {
+            0%, 100% {
+                box-shadow: 0 0 4px rgba(255, 77, 109, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 12px rgba(255, 77, 109, 0.6);
+            }
+        }
+
+        .prob-bar-container {
+            width: 120px;
+            background: rgba(255, 255, 255, 0.08);
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .prob-bar {
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.1, 0.8, 0.25, 1);
+        }
+
+        .prob-bar.pos {
+            background: linear-gradient(90deg, #00C48C, #00E5A0);
+        }
+
+        .prob-bar.neg {
+            background: linear-gradient(90deg, #D63060, #FF4D6D);
+        }
+
+        /* Explanation box */
+        .explanation-box {
+            background: rgba(10, 8, 20, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .explanation-box h4 {
+            font-family: var(--font-outfit);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .highlighted-words {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-main);
+        }
+
+        .word-span {
+            display: inline-block;
+            margin: 0 0.15rem;
+            padding: 0.05rem 0.25rem;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s ease;
+        }
+
+        .word-span:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .word-span.pos {
+            color: var(--accent-green);
+            background: rgba(0, 255, 135, 0.08);
+            border-bottom: 2px solid var(--accent-green);
+        }
+
+        .word-span.neg {
+            color: var(--accent-red);
+            background: rgba(255, 77, 109, 0.08);
+            border-bottom: 2px solid var(--accent-red);
+        }
+
+        .weight-tooltip {
+            visibility: hidden;
+            width: 150px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -75px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .word-span:hover .weight-tooltip {
+            visibility: visible;
+        }
+
+        /* Metrics section */
+        .metrics-card {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 900px) {
+            .metrics-card {
+                grid-column: span 1;
+            }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 750px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        th {
+            font-family: var(--font-outfit);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr.best-row {
+            background: rgba(0, 255, 135, 0.05);
+        }
+
+        tr.worst-row {
+            background: rgba(255, 77, 109, 0.05);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+            color: #fff;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+
+        /* Bulk analysis results */
+        .bulk-results {
+            display: none;
+            margin-top: 1.5rem;
+        }
+
+        .bulk-results.show {
+            display: block;
+        }
+
+        .bulk-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            background: rgba(10, 8, 20, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .summary-stat {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--theme-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bulk-items {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .bulk-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid rgba(255, 255, 255, 0.1);
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .bulk-item.pos {
+            border-left-color: var(--accent-green);
+        }
+
+        .bulk-item.neg {
+            border-left-color: var(--accent-red);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .small-spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+            margin-right: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="emoji-burst"></div>
+    
+    <div class="container">
+        <header>
+            <div class="badge">Ablation Study Showcase</div>
+            <h1>Sentiment Analysis & Opinion Mining</h1>
+            <p>Compare Naive Bayes, Logistic Regression, and Bidirectional LSTM models on synthetic Amazon reviews.</p>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Panel: Sentiment Input -->
+            <div class="glass-panel">
+                <div class="panel-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-blue)"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    Live Predictor & Tester
+                </div>
+
+                <!-- URL Extraction Section -->
+                <div class="input-section">
+                    <label class="input-label">📍 Extract from URL</label>
+                    <input type="text" id="url-input" placeholder="Paste Amazon / Flipkart / any review page URL...">
+                    <button class="btn btn-secondary" id="extract-btn">Extract & Analyse</button>
+                    <div id="url-error" class="error-card"></div>
+                    <div id="url-status" class="status-message"></div>
+                    
+                    <!-- Product Info Section -->
+                    <div id="product-info" style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(138, 43, 226, 0.1); border-radius: 10px; border: 1px solid rgba(138, 43, 226, 0.2);">
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>⭐ Product Rating:</strong> 
+                            <span id="product-stars" style="color: var(--accent-blue); font-size: 1.1rem; font-weight: 600;"></span>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong>📊 Reviews Found:</strong> 
+                            <span id="reviews-count" style="color: var(--accent-green); font-size: 1.1rem; font-weight: 600;"></span>
+                        </div>
+                    </div>
+                    
+                    <div id="review-chips" class="review-chips" style="display: none; margin-top: 1rem;"></div>
+                </div>
+
+                <!-- Text Input Section -->
+                <div class="input-section">
+                    <label class="input-label">✍️ Or Type Manually</label>
+                    <textarea id="review-input" placeholder="Type a product review... E.g., 'This device was absolutely excellent, great battery and fast shipping!' or 'Terrible build quality, cheap design and arrived broken.'"></textarea>
+                    <button class="btn" id="analyze-btn">Analyze Sentiment</button>
+                </div>
+
+                <!-- Prediction Results -->
+                <div class="results-section" id="results-panel">
+                    <div id="predictions-list"></div>
+                    <button class="btn btn-secondary" id="bulk-btn" style="display: none; margin-top: 1rem;">Analyze All Extracted Reviews</button>
+                    <button class="btn btn-secondary" id="copy-reviews-btn" style="display: none; margin-top: 0.5rem; background: rgba(0, 210, 255, 0.15); border-color: rgba(0, 210, 255, 0.3); color: var(--accent-blue);">📋 Copy All Extracted Reviews</button>
+                </div>
+
+                <!-- Bulk Analysis Results -->
+                <div class="bulk-results" id="bulk-results-panel">
+                    <div class="bulk-summary" id="bulk-summary"></div>
+                    <div class="bulk-items" id="bulk-items-list"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Explanation & Cleaned view -->
+            <div class="glass-panel" style="display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <div class="panel-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-green)"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        Feature Weights & Preprocessing
+                    </div>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                        Analyze how the text is normalized and see the impact weights of specific tokens using the Logistic Regression coefficient matrix.
+                    </p>
+                    <div class="explanation-box">
+                        <h4>Cleaned & Normalized Tokens</h4>
+                        <div class="highlighted-words" id="highlighted-output">
+                            <span style="color: var(--text-muted); font-size: 0.95rem;">Enter text and click analyze to see word weight mapping...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem; color: var(--text-muted);">
+                    <span style="color: var(--accent-green); font-weight: 600;">Green</span> underlined words carry positive feature coefficients. <span style="color: var(--accent-red); font-weight: 600;">Red</span> underlined words carry negative feature coefficients.
+                </div>
+            </div>
+
+            <!-- Bottom Panel: Metrics comparison -->
+            <div class="glass-panel metrics-card">
+                <div class="panel-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary)"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    Ablation Study & Metrics Comparison
+                </div>
+                <div class="metrics-grid">
+                    <div>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                            These scores represent model validation stats extracted directly from the classification logs generated during Phase 4.
+                        </p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Model Name</th>
+                                    <th>Accuracy</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>F1 Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="metrics-table-body">
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: var(--text-muted);">Loading comparison metrics...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            <canvas id="metricsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripting logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const reviewInput = document.getElementById('review-input');
+            const resultsPanel = document.getElementById('results-panel');
+            const predictionsList = document.getElementById('predictions-list');
+            const highlightedOutput = document.getElementById('highlighted-output');
+            const metricsTableBody = document.getElementById('metrics-table-body');
+            
+            // URL extraction
+            const urlInput = document.getElementById('url-input');
+            const extractBtn = document.getElementById('extract-btn');
+            const urlError = document.getElementById('url-error');
+            const urlStatus = document.getElementById('url-status');
+            const reviewChips = document.getElementById('review-chips');
+            const bulkBtn = document.getElementById('bulk-btn');
+            const copyReviewsBtn = document.getElementById('copy-reviews-btn');
+            const bulkResultsPanel = document.getElementById('bulk-results-panel');
+            
+            let extractedReviews = [];
+            let chart = null;
+
+            const modelIcons = {
+                'Naive Bayes': '🎲',
+                'Logistic Regression': '📈',
+                'LSTM': '🧠'
+            };
+
+            const modelDescriptions = {
+                'Naive Bayes': 'Probabilistic classifier based on Bayes theorem with strong independence assumptions. Fast and works well for text.',
+                'Logistic Regression': 'Linear classifier using logistic function. Interpretable coefficients show feature importance.',
+                'LSTM': 'Deep bidirectional LSTM network. Captures sequential patterns and long-term dependencies in text.'
+            };
+
+            // Load Metrics
+            fetch('/metrics')
+                .then(res => res.json())
+                .then(data => {
+                    metricsTableBody.innerHTML = '';
+                    
+                    const labels = [];
+                    const f1Scores = [];
+                    const accuracies = [];
+                    let bestF1 = -1, worstF1 = 2;
+
+                    // Parse data - handle different CSV formats
+                    data.forEach(row => {
+                        const modelName = row.model || row['Unnamed: 0'] || Object.keys(row)[0] || "Unknown";
+                        labels.push(modelName);
+                        f1Scores.push(parseFloat(row.f1_score) || 0);
+                        accuracies.push(parseFloat(row.accuracy) || 0);
+                        bestF1 = Math.max(bestF1, parseFloat(row.f1_score) || 0);
+                        worstF1 = Math.min(worstF1, parseFloat(row.f1_score) || 0);
+                    });
+
+                    data.forEach(row => {
+                        const modelName = row.model || row['Unnamed: 0'] || Object.keys(row)[0] || "Unknown";
+                        const tr = document.createElement('tr');
+                        
+                        const f1 = parseFloat(row.f1_score) || 0;
+                        let rowClass = '';
+                        if (f1 === bestF1 && bestF1 > 0) rowClass = 'best-row';
+                        else if (f1 === worstF1 && worstF1 > 0) rowClass = 'worst-row';
+                        
+                        tr.className = rowClass;
+                        tr.innerHTML = `
+                            <td class="model-name"><strong>${modelName}</strong></td>
+                            <td><span style="color: var(--accent-blue); font-weight: 600;">${(parseFloat(row.accuracy) * 100).toFixed(1)}%</span></td>
+                            <td><span style="color: var(--accent-green); font-weight: 600;">${(parseFloat(row.precision) * 100).toFixed(1)}%</span></td>
+                            <td><span style="color: var(--accent-blue); font-weight: 600;">${(parseFloat(row.recall) * 100).toFixed(1)}%</span></td>
+                            <td style="font-weight: 700; color: var(--theme-accent); font-size: 1.05rem;">${(f1 * 100).toFixed(1)}%</td>
+                        `;
+                        metricsTableBody.appendChild(tr);
+                    });
+
+                    // Create initial chart
+                    updateChart(labels, f1Scores, accuracies);
+                })
+                .catch(err => {
+                    console.error('Error fetching metrics:', err);
+                    metricsTableBody.innerHTML = '<tr><td colspan="5" style="color: var(--accent-red);">Failed to load metrics.</td></tr>';
+                });
+
+            // Function to update the chart
+            function updateChart(labels, f1Scores, accuracies) {
+                if (chart) {
+                    chart.destroy();
+                }
+                
+                const ctx = document.getElementById('metricsChart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'F1 Score',
+                                data: f1Scores,
+                                backgroundColor: 'rgba(170, 43, 255, 0.8)',
+                                borderColor: 'rgba(170, 43, 255, 1)',
+                                borderWidth: 2,
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'Accuracy',
+                                data: accuracies,
+                                backgroundColor: 'rgba(0, 210, 255, 0.8)',
+                                borderColor: 'rgba(0, 210, 255, 1)',
+                                borderWidth: 2,
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#a59fb8',
+                                    font: { family: 'Inter', size: 12, weight: '600' },
+                                    padding: 15
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 1.1,
+                                grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                                ticks: { 
+                                    color: '#a59fb8',
+                                    font: { size: 11 }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { 
+                                    color: '#a59fb8',
+                                    font: { size: 11, weight: '600' }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // URL extraction
+            extractBtn.addEventListener('click', () => {
+                const url = urlInput.value.trim();
+                if (!url) return;
+
+                urlError.classList.remove('show');
+                urlStatus.innerHTML = '<span class="small-spinner"></span> Extracting reviews...';
+                urlStatus.classList.add('extracting');
+                extractBtn.disabled = true;
+
+                fetch('/extract_reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        urlError.textContent = '⚠️ ' + data.error;
+                        urlError.classList.add('show');
+                        urlStatus.innerHTML = '';
+                        return;
+                    }
+
+                    extractedReviews = data.reviews;
+                    urlStatus.innerHTML = `✓ Found ${data.count} reviews`;
+                    urlStatus.classList.remove('extracting');
+
+                    // Show product info
+                    const productInfo = document.getElementById('product-info');
+                    const productStars = document.getElementById('product-stars');
+                    const reviewsCount = document.getElementById('reviews-count');
+                    
+                    if (data.product_stars) {
+                        productStars.textContent = `${data.product_stars} ⭐ (out of 5)`;
+                    } else {
+                        productStars.textContent = 'Not found';
+                    }
+                    reviewsCount.textContent = `${data.count} customer reviews extracted`;
+                    productInfo.style.display = 'block';
+
+                    // Show review chips
+                    reviewChips.innerHTML = '';
+                    extractedReviews.forEach((review, idx) => {
+                        const chip = document.createElement('div');
+                        chip.className = 'review-chip';
+                        chip.textContent = review.substring(0, 50) + '...';
+                        chip.title = review; // Show full review on hover
+                        chip.onclick = () => {
+                            reviewInput.value = review;
+                            document.querySelectorAll('.review-chip').forEach(c => c.classList.remove('selected'));
+                            chip.classList.add('selected');
+                        };
+                        reviewChips.appendChild(chip);
+                    });
+                    reviewChips.style.display = 'flex';
+                    bulkBtn.style.display = 'block';
+                    copyReviewsBtn.style.display = 'block';
+                })
+                .catch(err => {
+                    urlError.textContent = '❌ Error: ' + err.message;
+                    urlError.classList.add('show');
+                    urlStatus.innerHTML = '';
+                })
+                .finally(() => {
+                    extractBtn.disabled = false;
+                });
+            });
+
+            // Session tracking for live metrics
+            const sessionData = {
+                totalAnalyzed: 0,
+                predictions: {
+                    'Naive Bayes': [],
+                    'Logistic Regression': [],
+                    'LSTM': []
+                },
+                accuracyByModel: {}
+            };
+
+            // Main sentiment analysis
+            function runAnalysis(text) {
+                if (!text.trim()) return;
+
+                analyzeBtn.innerHTML = '<span class="spinner"></span>Analyzing...';
+                analyzeBtn.disabled = true;
+                resultsPanel.classList.remove('show');
+
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                })
+                .then(res => res.json())
+                .then(resData => {
+                    predictionsList.innerHTML = '';
+                    const predictions = resData.predictions;
+                    
+                    // Track predictions for live metrics
+                    sessionData.totalAnalyzed++;
+                    for (const [modelName, details] of Object.entries(predictions)) {
+                        if (sessionData.predictions[modelName]) {
+                            sessionData.predictions[modelName].push({
+                                prediction: details.prediction,
+                                probability: details.probability,
+                                confidence: details.probability
+                            });
+                        }
+                    }
+                    
+                    if (Object.keys(predictions).length === 0) {
+                        predictionsList.innerHTML = '<div style="color: var(--text-muted);">No models are loaded. Please run model training first.</div>';
+                    } else {
+                        let positiveCount = 0, negativeCount = 0;
+
+                        for (const [modelName, details] of Object.entries(predictions)) {
+                            const isPositive = details.prediction === 1;
+                            if (isPositive) positiveCount++;
+                            else negativeCount++;
+
+                            const probPercentage = (details.probability * 100).toFixed(1);
+                            
+                            const row = document.createElement('div');
+                            row.className = `model-result-row ${isPositive ? 'pos' : 'neg'}`;
+                            row.innerHTML = `
+                                <span class="model-name">
+                                    <span class="model-icon">${modelIcons[modelName] || '🤖'}</span>
+                                    <span class="model-name-tooltip">
+                                        ${modelName}
+                                        <span class="tooltip">${modelDescriptions[modelName] || 'Sentiment classifier model'}</span>
+                                    </span>
+                                </span>
+                                <div class="sentiment-output">
+                                    <span class="sentiment-tag ${isPositive ? 'pos' : 'neg'}">${isPositive ? 'Positive' : 'Negative'}</span>
+                                    <span style="font-size: 0.9rem; font-weight: 500; min-width: 45px; text-align: right;">${probPercentage}%</span>
+                                    <div class="prob-bar-container">
+                                        <div class="prob-bar ${isPositive ? 'pos' : 'neg'}" style="width: ${probPercentage}%"></div>
+                                    </div>
+                                </div>
+                            `;
+                            predictionsList.appendChild(row);
+                        }
+
+                        // Apply theme and emoji burst
+                        let sentiment = 'MIXED';
+                        if (positiveCount > negativeCount) {
+                            sentiment = 'POSITIVE';
+                        } else if (negativeCount > positiveCount) {
+                            sentiment = 'NEGATIVE';
+                        }
+
+                        applyTheme(sentiment);
+                        triggerEmojiBurst(sentiment);
+                        
+                        // Update chart dynamically based on confidence
+                        updateLiveMetrics();
+                    }
+                    resultsPanel.classList.add('show');
+
+                    // Highlight words
+                    highlightedOutput.innerHTML = '';
+                    const explanation = resData.explanation;
+                    
+                    if (explanation.length === 0) {
+                        highlightedOutput.innerHTML = `<span style="color: var(--text-muted)">${resData.cleaned_text || '(Empty text after preprocessing)'}</span>`;
+                    } else {
+                        explanation.forEach(item => {
+                            const span = document.createElement('span');
+                            span.className = `word-span ${item.impact}`;
+                            span.textContent = item.word;
+                            span.innerHTML += `<span class="weight-tooltip">Weight: ${item.weight.toFixed(3)}</span>`;
+                            highlightedOutput.appendChild(span);
+                            highlightedOutput.appendChild(document.createTextNode(' '));
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error analyzing text:', err);
+                    predictionsList.innerHTML = '<div style="color: var(--accent-red);">Analysis failed. Check backend logs.</div>';
+                    resultsPanel.classList.add('show');
+                })
+                .finally(() => {
+                    analyzeBtn.innerHTML = 'Analyze Sentiment';
+                    analyzeBtn.disabled = false;
+                });
+            }
+
+            // Update metrics dynamically based on session predictions
+            function updateLiveMetrics() {
+                const labels = [];
+                const accuracies = [];
+                const f1Scores = [];
+                
+                // Calculate metrics for each model based on session predictions
+                for (const [modelName, predictions] of Object.entries(sessionData.predictions)) {
+                    if (predictions.length === 0) continue;
+                    
+                    labels.push(modelName);
+                    
+                    // Calculate confidence-based metrics
+                    const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length;
+                    const accuracyScore = Math.min(avgConfidence, 1.0);
+                    
+                    accuracies.push(accuracyScore);
+                    f1Scores.push(accuracyScore); // For live mode, use confidence as proxy
+                }
+                
+                // Update chart if we have new predictions
+                if (labels.length > 0) {
+                    updateChart(labels, f1Scores, accuracies);
+                    
+                    // Also update the metrics table with live data
+                    metricsTableBody.innerHTML = '';
+                    let idx = 0;
+                    for (const [modelName, predictions] of Object.entries(sessionData.predictions)) {
+                        if (predictions.length === 0) continue;
+                        
+                        const avgConfidence = predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length;
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="model-name"><strong>${modelName}</strong></td>
+                            <td><span style="color: var(--accent-blue); font-weight: 600;">${(avgConfidence * 100).toFixed(1)}%</span></td>
+                            <td><span style="color: var(--accent-green); font-weight: 600;">${(avgConfidence * 100).toFixed(1)}%</span></td>
+                            <td><span style="color: var(--accent-blue); font-weight: 600;">${(avgConfidence * 100).toFixed(1)}%</span></td>
+                            <td style="font-weight: 700; color: var(--theme-accent); font-size: 1.05rem;">${(avgConfidence * 100).toFixed(1)}%</td>
+                        `;
+                        metricsTableBody.appendChild(tr);
+                        idx++;
+                    }
+                }
+            }
+
+            analyzeBtn.addEventListener('click', () => {
+                runAnalysis(reviewInput.value);
+            });
+
+            // Bulk analysis
+            bulkBtn.addEventListener('click', () => {
+                if (!extractedReviews.length) return;
+
+                bulkBtn.innerHTML = '<span class="spinner"></span>Analyzing all...';
+                bulkBtn.disabled = true;
+
+                fetch('/analyse_bulk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reviews: extractedReviews })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const summary = data.summary;
+                    
+                    // Update theme for bulk results
+                    applyTheme(summary.overall_sentiment);
+                    triggerEmojiBurst(summary.overall_sentiment);
+
+                    // Render summary
+                    const bulkSummary = document.getElementById('bulk-summary');
+                    bulkSummary.innerHTML = `
+                        <div class="summary-card">
+                            <div class="summary-stat">${summary.positive}</div>
+                            <div class="summary-label">😊 Positive</div>
+                            <div class="summary-label">${summary.positive_pct}%</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-stat">${summary.negative}</div>
+                            <div class="summary-label">😞 Negative</div>
+                            <div class="summary-label">${summary.negative_pct}%</div>
+                        </div>
+                    `;
+
+                    // Render items
+                    const itemsList = document.getElementById('bulk-items-list');
+                    itemsList.innerHTML = '';
+                    data.results.forEach(result => {
+                        const item = document.createElement('div');
+                        item.className = `bulk-item ${result.majority === 'POSITIVE' ? 'pos' : 'neg'}`;
+                        item.innerHTML = `<strong>${result.majority}:</strong> ${result.text}`;
+                        itemsList.appendChild(item);
+                    });
+
+                    bulkResultsPanel.classList.add('show');
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Bulk analysis failed.');
+                })
+                .finally(() => {
+                    bulkBtn.innerHTML = 'Analyze All Extracted Reviews';
+                    bulkBtn.disabled = false;
+                });
+            });
+
+            // Copy reviews to clipboard
+            copyReviewsBtn.addEventListener('click', () => {
+                if (!extractedReviews.length) return;
+
+                const textToCopy = extractedReviews.map((r, i) => `${i + 1}. ${r}`).join('\n\n');
+
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const originalText = copyReviewsBtn.innerHTML;
+                    copyReviewsBtn.innerHTML = '✓ Copied to Clipboard!';
+                    copyReviewsBtn.style.borderColor = 'var(--accent-green)';
+                    copyReviewsBtn.style.color = 'var(--accent-green)';
+                    setTimeout(() => {
+                        copyReviewsBtn.innerHTML = originalText;
+                        copyReviewsBtn.style.borderColor = 'rgba(0, 210, 255, 0.3)';
+                        copyReviewsBtn.style.color = 'var(--accent-blue)';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy reviews.');
+                });
+            });
+
+            // Theme application
+            function applyTheme(sentiment) {
+                document.body.classList.remove('theme-positive', 'theme-negative', 'theme-mixed');
+                if (sentiment === 'POSITIVE') {
+                    document.body.classList.add('theme-positive');
+                } else if (sentiment === 'NEGATIVE') {
+                    document.body.classList.add('theme-negative');
+                } else {
+                    document.body.classList.add('theme-mixed');
+                }
+            }
+
+            // Emoji burst
+            function triggerEmojiBurst(sentiment) {
+                const burst = document.getElementById('emoji-burst');
+                burst.innerHTML = '';
+                
+                let emojis = [];
+                if (sentiment === 'POSITIVE') {
+                    emojis = ['🎉', '✨', '😍'];
+                } else if (sentiment === 'NEGATIVE') {
+                    emojis = ['💔', '😤', '🚨'];
+                } else {
+                    emojis = ['🤔', '⚖️', '🌀'];
+                }
+
+                emojis.forEach((emoji, idx) => {
+                    const span = document.createElement('span');
+                    span.className = 'emoji';
+                    span.textContent = emoji;
+                    const offset = (idx - 1) * 80;
+                    span.style.setProperty('--offset-x', offset + 'px');
+                    burst.appendChild(span);
+                });
+
+                burst.style.display = 'block';
+                setTimeout(() => {
+                    burst.style.display = 'none';
+                }, 2500);
+            }
+        });
+    </script>
+</body>
+</html>
