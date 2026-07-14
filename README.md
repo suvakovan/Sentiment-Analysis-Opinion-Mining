@@ -1,4 +1,4 @@
-# Sentiment Analysis & Opinion Mining
+# Sentiment Analysis & Opinion Mining!
 
 <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=34&pause=850&center=true&vCenter=true&width=980&height=80&lines=Application+Under+Construction;Sentiment+Analysis+Dashboard+In+Progress;Updating+Models%2C+UI%2C+and+Documentation" alt="Application under construction animation" />
